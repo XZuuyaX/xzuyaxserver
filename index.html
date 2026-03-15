@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Lua Script Cloud · Dashboard</title>
+  <title>Lua Script Cloud · Admin Dashboard</title>
   <style>
     * {
       box-sizing: border-box;
@@ -19,7 +19,7 @@
     }
 
     .glass {
-      background: rgba(20, 35, 45, 0.6);
+      background: rgba(20, 35, 45, 0.7);
       backdrop-filter: blur(12px);
       -webkit-backdrop-filter: blur(12px);
       border: 1px solid rgba(255, 255, 255, 0.06);
@@ -28,11 +28,10 @@
     }
 
     .container {
-      max-width: 1100px;
+      max-width: 1200px;
       margin: 0 auto;
     }
 
-    /* header */
     .header {
       display: flex;
       align-items: center;
@@ -62,7 +61,6 @@
       color: #b3defa;
     }
 
-    /* stat cards */
     .stats {
       display: grid;
       grid-template-columns: repeat(auto-fit, minmax(170px, 1fr));
@@ -76,7 +74,6 @@
       border-radius: 24px;
       padding: 1.3rem 1.2rem;
       border: 1px solid rgba(90, 150, 200, 0.15);
-      box-shadow: 0 8px 20px -10px #00000055;
     }
 
     .stat-label {
@@ -94,7 +91,6 @@
       color: white;
     }
 
-    /* tabs */
     .tabs {
       display: flex;
       gap: 0.5rem;
@@ -103,7 +99,7 @@
       padding: 0.4rem;
       border-radius: 40px;
       width: fit-content;
-      backdrop-filter: blur(4px);
+      flex-wrap: wrap;
     }
 
     .tab {
@@ -123,7 +119,6 @@
       border-color: #3f779b;
     }
 
-    /* panels */
     .panel {
       display: none;
       animation: fade 0.25s ease;
@@ -133,9 +128,11 @@
       display: block;
     }
 
-    @keyframes fade { from { opacity: 0.3; } to { opacity: 1; } }
+    @keyframes fade {
+      from { opacity: 0.3; }
+      to { opacity: 1; }
+    }
 
-    /* form */
     .form-group {
       margin-bottom: 1.6rem;
     }
@@ -148,7 +145,7 @@
       color: #c5dff5;
     }
 
-    input, textarea {
+    input, textarea, select {
       width: 100%;
       background: #10232f;
       border: 1px solid #2f4d64;
@@ -168,7 +165,7 @@
     textarea {
       resize: vertical;
       min-height: 150px;
-      font-family: 'JetBrains Mono', 'Fira Code', monospace;
+      font-family: 'JetBrains Mono', monospace;
     }
 
     button {
@@ -199,6 +196,14 @@
 
     button.secondary:hover {
       background: #1f435a;
+    }
+
+    button.danger {
+      background: #8b2c2c;
+      border-color: #b14d4d;
+    }
+    button.danger:hover {
+      background: #a53a3a;
     }
 
     .loader-box {
@@ -270,16 +275,25 @@
     .badge-sm {
       background: #1b3d52;
       border-radius: 30px;
-      padding: 0.2rem 1rem;
+      padding: 0.4rem 1.2rem;
       font-size: 0.8rem;
       border: 1px solid #346180;
+      cursor: pointer;
     }
 
-    /* modal */
+    .key-display {
+      background: #0e2634;
+      padding: 0.2rem 0.8rem;
+      border-radius: 20px;
+      color: #b3e0ff;
+      font-family: monospace;
+      margin-left: 0.5rem;
+    }
+
     .modal-overlay {
       position: fixed;
       top: 0; left: 0; width: 100%; height: 100%;
-      background: rgba(0, 0, 0, 0.7);
+      background: rgba(0, 0, 0, 0.8);
       backdrop-filter: blur(5px);
       display: none;
       align-items: center;
@@ -290,11 +304,13 @@
     .modal {
       background: #153544;
       border-radius: 32px;
-      max-width: 550px;
+      max-width: 600px;
       width: 90%;
       padding: 2rem;
       border: 1px solid #3f6f93;
       box-shadow: 0 30px 60px #00000080;
+      max-height: 80vh;
+      overflow-y: auto;
     }
 
     .modal h2 {
@@ -308,85 +324,119 @@
       cursor: pointer;
       color: #b0cde0;
     }
+
+    .login-box {
+      background: #10232f;
+      border-radius: 28px;
+      padding: 2rem;
+      max-width: 400px;
+      margin: 2rem auto;
+    }
   </style>
 </head>
 <body>
 <div class="container">
-  <!-- header -->
   <div class="header">
     <div class="logo">
-      <h1>◈ LuaCloud</h1>
+      <h1>◈ LuaCloud · Admin</h1>
     </div>
-    <div class="badge">
-      ⚡ Railway · MongoDB
+    <div class="badge" id="loginStatus">
+      ⚡ Not logged in
     </div>
   </div>
 
-  <!-- stats cards -->
+  <!-- Stats row -->
   <div class="stats">
     <div class="stat-card">
-      <div class="stat-label">Total Scripts</div>
-      <div class="stat-value" id="scriptCount">0</div>
+      <div class="stat-label">Total Scripts (Server)</div>
+      <div class="stat-value" id="serverScriptCount">?</div>
     </div>
     <div class="stat-card">
       <div class="stat-label">Status</div>
       <div class="stat-value" style="font-size:1.8rem;">🟢 Online</div>
     </div>
     <div class="stat-card">
-      <div class="stat-label">Endpoint</div>
-      <div class="stat-value" style="font-size:1rem; word-break:break-all;">/create<br>/loader/:name</div>
+      <div class="stat-label">Admin</div>
+      <div class="stat-value" id="adminStatus" style="font-size:1.2rem;">🔒</div>
     </div>
   </div>
 
-  <!-- tabs -->
-  <div class="tabs">
-    <div class="tab active" data-tab="create">➕ Create</div>
-    <div class="tab" data-tab="scripts">📜 My Scripts</div>
+  <!-- Login / Logout -->
+  <div style="display: flex; gap: 1rem; justify-content: flex-end; margin-bottom: 1rem;">
+    <button id="loginBtn" class="secondary">🔑 Login Admin</button>
+    <button id="logoutBtn" class="secondary" style="display:none;">🚪 Logout</button>
   </div>
 
-  <!-- panel create -->
+  <!-- Tabs -->
+  <div class="tabs">
+    <div class="tab active" data-tab="create">➕ Create</div>
+    <div class="tab" data-tab="local">📁 Local Scripts</div>
+    <div class="tab" data-tab="server">🌐 Server Scripts</div>
+    <div class="tab" data-tab="admin" id="adminTab" style="display:none;">👑 Admin Panel</div>
+  </div>
+
+  <!-- Panel Create -->
   <div id="createPanel" class="panel active">
     <div class="glass" style="padding: 2rem;">
       <div class="form-group">
         <label>Script Name (unique)</label>
-        <input type="text" id="scriptName" placeholder="e.g. cool_script" autocomplete="off">
+        <input type="text" id="scriptName" placeholder="e.g. cool_script">
       </div>
       <div class="form-group">
         <label>Lua Script</label>
-        <textarea id="scriptCode" placeholder="-- your lua code here">print("Hello from Railway!")</textarea>
+        <textarea id="scriptCode" placeholder="-- your lua code">print("Hello from Railway!")</textarea>
       </div>
       <div class="form-group">
-        <label>Key (password for edit)</label>
-        <input type="password" id="scriptKey" placeholder="minimal 4 characters" value="rahasia123">
+        <label>Key (password for edit/delete)</label>
+        <input type="password" id="scriptKey" value="rahasia123">
       </div>
       <button id="createBtn">🚀 Create Script</button>
       <div id="createResult"></div>
     </div>
   </div>
 
-  <!-- panel my scripts -->
-  <div id="scriptsPanel" class="panel">
+  <!-- Panel Local Scripts (browser storage) -->
+  <div id="localPanel" class="panel">
     <div class="glass" style="padding: 2rem;">
-      <div style="margin-bottom: 1.2rem; display: flex; justify-content: space-between; align-items: center;">
-        <span style="font-weight: 600;">📋 Saved in browser</span>
-        <button class="secondary" id="refreshListBtn" style="padding:0.4rem 1.2rem;">↻ Refresh</button>
+      <div style="margin-bottom: 1.2rem; display: flex; justify-content: space-between;">
+        <span>📋 Script tersimpan di browser</span>
+        <button class="secondary" id="refreshLocalBtn">↻ Refresh</button>
       </div>
-      <div id="scriptListContainer" class="script-list">
-        <!-- akan diisi javascript -->
-        <div style="text-align:center; padding: 3rem; color: #7f9fb5;">Belum ada script, buat dulu di tab Create.</div>
+      <div id="localScriptList" class="script-list"></div>
+    </div>
+  </div>
+
+  <!-- Panel Server Scripts (public, no keys) -->
+  <div id="serverPanel" class="panel">
+    <div class="glass" style="padding: 2rem;">
+      <div style="margin-bottom: 1.2rem; display: flex; justify-content: space-between;">
+        <span>🌍 Script di server (publik)</span>
+        <button class="secondary" id="fetchServerBtn">📡 Ambil daftar</button>
       </div>
+      <div id="serverScriptList" class="script-list"></div>
+    </div>
+  </div>
+
+  <!-- Panel Admin (hanya tampil setelah login) -->
+  <div id="adminPanel" class="panel">
+    <div class="glass" style="padding: 2rem;">
+      <h3 style="margin-bottom:1rem;">👑 Admin: semua script beserta key</h3>
+      <div style="margin-bottom: 1rem;">
+        <button id="refreshAdminBtn" class="secondary">🔄 Refresh</button>
+      </div>
+      <div id="adminScriptList" class="script-list"></div>
     </div>
   </div>
 </div>
 
-<!-- modal edit -->
+<!-- Modal Edit -->
 <div class="modal-overlay" id="editModal">
   <div class="modal">
     <span class="close-modal" id="closeModalBtn">&times;</span>
     <h2>✎ Edit Script</h2>
     <div class="form-group">
       <label>Script Name</label>
-      <input type="text" id="editName" readonly disabled style="background:#1e3a4c;">
+      <input type="text" id="editName" readonly disabled>
     </div>
     <div class="form-group">
       <label>Lua Script</label>
@@ -398,49 +448,353 @@
     </div>
     <div style="display: flex; gap: 1rem; justify-content: flex-end;">
       <button class="secondary" id="cancelEditBtn">Cancel</button>
-      <button id="saveEditBtn">💾 Update Script</button>
+      <button id="saveEditBtn">💾 Update</button>
     </div>
-    <div id="editStatus" style="margin-top: 1rem; font-size:0.9rem;"></div>
+    <div id="editStatus" style="margin-top: 1rem;"></div>
+  </div>
+</div>
+
+<!-- Modal Login -->
+<div class="modal-overlay" id="loginModal">
+  <div class="modal" style="max-width:400px;">
+    <span class="close-modal" id="closeLoginModal">&times;</span>
+    <h2>🔑 Admin Login</h2>
+    <div class="form-group">
+      <label>Password Admin</label>
+      <input type="password" id="adminPassword" placeholder="masukkan password admin">
+    </div>
+    <button id="submitLogin">Login</button>
+    <div id="loginError" style="color:#faa; margin-top:1rem;"></div>
   </div>
 </div>
 
 <script>
   (function() {
     // ---------- CONFIG ----------
-    const BASE_URL = 'https://xzuyaxserver.up.railway.app'; // ganti jika perlu
+    const BASE_URL = 'https://xzuyaxserver.up.railway.app'; // ganti sesuai domain railway
+    const ADMIN_PASSWORD = 'admin123'; // harus sama dengan ADMIN_PASSWORD di server
 
-    // ---------- LOCAL STORAGE KEYS ----------
+    // ---------- LOCAL STORAGE ----------
     const STORAGE_KEY = 'lua_scripts_list';
+    let localScripts = [];
 
-    // ---------- HELPER: load/save local scripts ----------
-    function getLocalScripts() {
+    // Load local scripts
+    function loadLocal() {
       try {
-        return JSON.parse(localStorage.getItem(STORAGE_KEY)) || [];
+        localScripts = JSON.parse(localStorage.getItem(STORAGE_KEY)) || [];
       } catch {
-        return [];
+        localScripts = [];
+      }
+    }
+    function saveLocal() {
+      localStorage.setItem(STORAGE_KEY, JSON.stringify(localScripts));
+    }
+    loadLocal();
+
+    // ---------- UI Elements ----------
+    const loginStatus = document.getElementById('loginStatus');
+    const loginBtn = document.getElementById('loginBtn');
+    const logoutBtn = document.getElementById('logoutBtn');
+    const adminTab = document.getElementById('adminTab');
+    const tabs = document.querySelectorAll('.tab');
+    const panels = {
+      create: document.getElementById('createPanel'),
+      local: document.getElementById('localPanel'),
+      server: document.getElementById('serverPanel'),
+      admin: document.getElementById('adminPanel')
+    };
+
+    let isAdmin = false; // status login
+
+    // Tab switching
+    tabs.forEach(tab => {
+      tab.addEventListener('click', () => {
+        const target = tab.dataset.tab;
+        if (target === 'admin' && !isAdmin) return; // tidak bisa akses admin jika belum login
+        tabs.forEach(t => t.classList.remove('active'));
+        tab.classList.add('active');
+        Object.values(panels).forEach(p => p.classList.remove('active'));
+        panels[target].classList.add('active');
+        if (target === 'local') renderLocal();
+        if (target === 'server') fetchServerScripts();
+        if (target === 'admin') fetchAdminScripts();
+      });
+    });
+
+    // Login modal
+    const loginModal = document.getElementById('loginModal');
+    const closeLoginModal = document.getElementById('closeLoginModal');
+    const submitLogin = document.getElementById('submitLogin');
+    const adminPassword = document.getElementById('adminPassword');
+    const loginError = document.getElementById('loginError');
+
+    loginBtn.addEventListener('click', () => {
+      loginModal.style.display = 'flex';
+      adminPassword.value = '';
+      loginError.innerText = '';
+    });
+
+    closeLoginModal.addEventListener('click', () => {
+      loginModal.style.display = 'none';
+    });
+
+    submitLogin.addEventListener('click', () => {
+      const pwd = adminPassword.value.trim();
+      if (pwd === ADMIN_PASSWORD) {
+        isAdmin = true;
+        loginModal.style.display = 'none';
+        loginStatus.innerText = '🔓 Admin';
+        loginBtn.style.display = 'none';
+        logoutBtn.style.display = 'inline-block';
+        adminTab.style.display = 'inline-block';
+        document.getElementById('adminStatus').innerText = '👑 Admin';
+        // jika sedang di tab admin, refresh
+        if (panels.admin.classList.contains('active')) {
+          fetchAdminScripts();
+        }
+      } else {
+        loginError.innerText = '❌ Password salah';
+      }
+    });
+
+    logoutBtn.addEventListener('click', () => {
+      isAdmin = false;
+      loginStatus.innerText = '⚡ Not logged in';
+      loginBtn.style.display = 'inline-block';
+      logoutBtn.style.display = 'none';
+      adminTab.style.display = 'none';
+      document.getElementById('adminStatus').innerText = '🔒';
+      // jika tab admin aktif, pindah ke create
+      if (panels.admin.classList.contains('active')) {
+        document.querySelector('.tab[data-tab="create"]').click();
+      }
+    });
+
+    // ---------- Create Script ----------
+    const createBtn = document.getElementById('createBtn');
+    const scriptName = document.getElementById('scriptName');
+    const scriptCode = document.getElementById('scriptCode');
+    const scriptKey = document.getElementById('scriptKey');
+    const createResult = document.getElementById('createResult');
+
+    createBtn.addEventListener('click', async () => {
+      const name = scriptName.value.trim();
+      const code = scriptCode.value.trim();
+      const key = scriptKey.value.trim();
+      if (!name || !code || !key) {
+        createResult.innerHTML = '<div class="loader-box">⚠️ Semua field harus diisi</div>';
+        return;
+      }
+
+      createBtn.disabled = true;
+      createResult.innerHTML = '<div class="loader-box">⏳ Menyimpan...</div>';
+
+      try {
+        const res = await fetch(`${BASE_URL}/create`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ name, script: code, key })
+        });
+        const data = await res.json();
+        if (res.ok && data.success) {
+          const loader = `loadstring(game:HttpGet("${BASE_URL}/loader/${encodeURIComponent(name)}"))()`;
+          createResult.innerHTML = `
+            <div class="loader-box">
+              <span>${loader}</span>
+              <span class="copy-btn" onclick="copyText(this, '${loader.replace(/'/g, "\\'")}')">📋 Copy</span>
+            </div>
+            <small style="color:#8f8;">✅ Script tersimpan di server</small>
+          `;
+          // Simpan ke lokal juga
+          localScripts = localScripts.filter(s => s.name !== name);
+          localScripts.push({ name, code, key });
+          saveLocal();
+          // Reset form
+          scriptName.value = '';
+          scriptCode.value = 'print("Hello again!")';
+          scriptKey.value = 'rahasia123';
+        } else {
+          createResult.innerHTML = `<div class="loader-box" style="color:#faa;">❌ ${data.error || 'Gagal'}</div>`;
+        }
+      } catch (err) {
+        createResult.innerHTML = `<div class="loader-box" style="color:#faa;">❌ Network error: ${err.message}</div>`;
+      } finally {
+        createBtn.disabled = false;
+      }
+    });
+
+    // ---------- Local Scripts ----------
+    const localList = document.getElementById('localScriptList');
+    const refreshLocal = document.getElementById('refreshLocalBtn');
+
+    function renderLocal() {
+      loadLocal();
+      if (localScripts.length === 0) {
+        localList.innerHTML = '<div style="text-align:center; padding:2rem; color:#7f9fb5;">📭 Tidak ada script lokal.</div>';
+        return;
+      }
+      let html = '';
+      localScripts.forEach(s => {
+        html += `
+          <div class="script-item">
+            <div class="script-info">
+              <h3>${escapeHtml(s.name)}</h3>
+              <small>Key: <span class="key-display">${escapeHtml(s.key)}</span></small>
+            </div>
+            <div class="script-actions">
+              <span class="badge-sm" onclick="copyLoader('${encodeURIComponent(s.name)}')">📋 Copy Loader</span>
+              <span class="badge-sm" onclick="editLocal('${encodeURIComponent(s.name)}')">✎ Edit</span>
+              <span class="badge-sm" style="background:#4f3b3b;" onclick="deleteLocal('${encodeURIComponent(s.name)}')">🗑 Hapus</span>
+            </div>
+          </div>
+        `;
+      });
+      localList.innerHTML = html;
+    }
+
+    window.copyLoader = function(encodedName) {
+      const name = decodeURIComponent(encodedName);
+      const loader = `loadstring(game:HttpGet("${BASE_URL}/loader/${encodeURIComponent(name)}"))()`;
+      navigator.clipboard.writeText(loader).then(() => alert('Loader copied!'));
+    };
+
+    window.editLocal = function(encodedName) {
+      const name = decodeURIComponent(encodedName);
+      const script = localScripts.find(s => s.name === name);
+      if (!script) return;
+      // buka modal edit dengan data lokal? Tapi lebih baik edit di server, jadi arahkan ke server edit
+      // Kita gunakan modal yang sama dengan mengisi nama dan key
+      openEditModal(name, script.code, script.key);
+    };
+
+    window.deleteLocal = function(encodedName) {
+      const name = decodeURIComponent(encodedName);
+      if (!confirm(`Hapus script "${name}" dari daftar lokal?`)) return;
+      localScripts = localScripts.filter(s => s.name !== name);
+      saveLocal();
+      renderLocal();
+    };
+
+    refreshLocal.addEventListener('click', renderLocal);
+
+    // ---------- Server Scripts (public) ----------
+    const serverList = document.getElementById('serverScriptList');
+    const fetchServerBtn = document.getElementById('fetchServerBtn');
+
+    async function fetchServerScripts() {
+      serverList.innerHTML = '<span>⏳ Mengambil daftar...</span>';
+      try {
+        const res = await fetch(`${BASE_URL}/scripts`);
+        if (!res.ok) throw new Error(`HTTP ${res.status}`);
+        const names = await res.json();
+        if (names.length === 0) {
+          serverList.innerHTML = '<div style="padding:2rem; color:#aaa;">📭 Tidak ada script di server.</div>';
+          return;
+        }
+        document.getElementById('serverScriptCount').innerText = names.length;
+        let html = '';
+        names.forEach(name => {
+          const loader = `loadstring(game:HttpGet("${BASE_URL}/loader/${encodeURIComponent(name)}"))()`;
+          html += `
+            <div class="script-item">
+              <span style="font-weight:600;">${escapeHtml(name)}</span>
+              <span class="badge-sm" onclick="copyText(this, '${loader.replace(/'/g, "\\'")}')">📋 Copy Loader</span>
+            </div>
+          `;
+        });
+        serverList.innerHTML = html;
+      } catch (err) {
+        serverList.innerHTML = `<span style="color:#f99;">❌ ${err.message}</span>`;
       }
     }
 
-    function saveLocalScripts(scripts) {
-      localStorage.setItem(STORAGE_KEY, JSON.stringify(scripts));
-      updateStatsAndList();
+    fetchServerBtn.addEventListener('click', fetchServerScripts);
+
+    // ---------- Admin Panel ----------
+    const adminList = document.getElementById('adminScriptList');
+    const refreshAdminBtn = document.getElementById('refreshAdminBtn');
+
+    async function fetchAdminScripts() {
+      if (!isAdmin) return;
+      adminList.innerHTML = '<span>⏳ Mengambil data admin...</span>';
+      try {
+        const res = await fetch(`${BASE_URL}/admin/scripts?password=${encodeURIComponent(ADMIN_PASSWORD)}`);
+        if (!res.ok) throw new Error(`HTTP ${res.status}`);
+        const scripts = await res.json(); // array of { name, key }
+        if (scripts.length === 0) {
+          adminList.innerHTML = '<div style="padding:2rem;">📭 Tidak ada script.</div>';
+          return;
+        }
+        let html = '';
+        scripts.forEach(s => {
+          html += `
+            <div class="script-item">
+              <div>
+                <strong>${escapeHtml(s.name)}</strong><br>
+                <small>Key: <span class="key-display">${escapeHtml(s.key)}</span></small>
+              </div>
+              <div class="script-actions">
+                <span class="badge-sm" onclick="adminViewScript('${encodeURIComponent(s.name)}')">👁 View</span>
+                <span class="badge-sm" onclick="adminEditScript('${encodeURIComponent(s.name)}')">✎ Edit</span>
+                <span class="badge-sm danger" style="background:#8b2c2c;" onclick="adminDeleteScript('${encodeURIComponent(s.name)}')">🗑 Hapus</span>
+              </div>
+            </div>
+          `;
+        });
+        adminList.innerHTML = html;
+      } catch (err) {
+        adminList.innerHTML = `<span style="color:#f99;">❌ ${err.message}</span>`;
+      }
     }
 
-    // ---------- UI ELEMENTS ----------
-    const createPanel = document.getElementById('createPanel');
-    const scriptsPanel = document.getElementById('scriptsPanel');
-    const tabs = document.querySelectorAll('.tab');
-    const scriptNameIn = document.getElementById('scriptName');
-    const scriptCodeIn = document.getElementById('scriptCode');
-    const scriptKeyIn = document.getElementById('scriptKey');
-    const createBtn = document.getElementById('createBtn');
-    const createResult = document.getElementById('createResult');
-    const scriptListContainer = document.getElementById('scriptListContainer');
-    const scriptCountSpan = document.getElementById('scriptCount');
-    const refreshBtn = document.getElementById('refreshListBtn');
+    window.adminViewScript = async function(encodedName) {
+      const name = decodeURIComponent(encodedName);
+      try {
+        const res = await fetch(`${BASE_URL}/admin/script/${encodeURIComponent(name)}?password=${encodeURIComponent(ADMIN_PASSWORD)}`);
+        if (!res.ok) throw new Error('Gagal');
+        const data = await res.json();
+        alert(`Script: ${data.name}\nKey: ${data.key}\n\n${data.script}`);
+      } catch (err) {
+        alert('Error: ' + err.message);
+      }
+    };
 
-    // modal elements
-    const modalOverlay = document.getElementById('editModal');
+    window.adminEditScript = function(encodedName) {
+      const name = decodeURIComponent(encodedName);
+      // Bisa ambil dulu script content, lalu buka modal edit dengan key sudah terisi?
+      // Sederhana: buka modal edit, isi nama, user harus tahu key? Tapi admin bisa lihat key, jadi kita isikan otomatis.
+      fetch(`${BASE_URL}/admin/script/${encodeURIComponent(name)}?password=${encodeURIComponent(ADMIN_PASSWORD)}`)
+        .then(res => res.json())
+        .then(data => {
+          openEditModal(data.name, data.script, data.key);
+        })
+        .catch(err => alert('Gagal ambil data: ' + err.message));
+    };
+
+    window.adminDeleteScript = async function(encodedName) {
+      const name = decodeURIComponent(encodedName);
+      if (!confirm(`Hapus script "${name}" dari server? (tidak bisa dikembalikan)`)) return;
+      try {
+        const res = await fetch(`${BASE_URL}/admin/script/${encodeURIComponent(name)}?password=${encodeURIComponent(ADMIN_PASSWORD)}`, {
+          method: 'DELETE'
+        });
+        const data = await res.json();
+        if (data.success) {
+          alert('Script dihapus');
+          fetchAdminScripts();
+          fetchServerScripts(); // update count
+        } else {
+          alert('Gagal: ' + data.error);
+        }
+      } catch (err) {
+        alert('Error: ' + err.message);
+      }
+    };
+
+    refreshAdminBtn.addEventListener('click', fetchAdminScripts);
+
+    // ---------- Modal Edit (umum) ----------
+    const editModal = document.getElementById('editModal');
     const closeModalBtn = document.getElementById('closeModalBtn');
     const cancelEditBtn = document.getElementById('cancelEditBtn');
     const saveEditBtn = document.getElementById('saveEditBtn');
@@ -449,119 +803,26 @@
     const editKey = document.getElementById('editKey');
     const editStatus = document.getElementById('editStatus');
 
-    let currentEditName = null; // menyimpan nama script yang sedang diedit
+    let currentEditName = null;
 
-    // ---------- TAB SWITCHING ----------
-    tabs.forEach(tab => {
-      tab.addEventListener('click', () => {
-        const target = tab.getAttribute('data-tab');
-        tabs.forEach(t => t.classList.remove('active'));
-        tab.classList.add('active');
-        if (target === 'create') {
-          createPanel.classList.add('active');
-          scriptsPanel.classList.remove('active');
-        } else {
-          createPanel.classList.remove('active');
-          scriptsPanel.classList.add('active');
-          renderScriptList();
-        }
-      });
-    });
-
-    // ---------- RENDER SCRIPT LIST FROM LOCALSTORAGE ----------
-    function renderScriptList() {
-      const scripts = getLocalScripts();
-      scriptCountSpan.innerText = scripts.length;
-
-      if (scripts.length === 0) {
-        scriptListContainer.innerHTML = '<div style="text-align:center; padding: 3rem; color: #7f9fb5;">📭 Belum ada script, buat dulu di tab Create.</div>';
-        return;
-      }
-
-      let html = '';
-      scripts.forEach(s => {
-        const loader = `loadstring(game:HttpGet("${BASE_URL}/loader/${encodeURIComponent(s.name)}"))()`;
-        html += `
-          <div class="script-item" data-name="${s.name}">
-            <div class="script-info">
-              <h3>${escapeHtml(s.name)}</h3>
-              <small>Key: •••••• (tersimpan)</small>
-            </div>
-            <div class="script-actions">
-              <span class="badge-sm copy-btn" onclick="copyLoader('${encodeURIComponent(s.name)}', this)">📋 Copy Loader</span>
-              <span class="badge-sm" style="background:#28536b;" onclick="openEditModal('${encodeURIComponent(s.name)}')">✎ Edit</span>
-              <span class="badge-sm" style="background:#4f3b3b;" onclick="deleteLocalScript('${encodeURIComponent(s.name)}')">🗑 Hapus</span>
-            </div>
-          </div>
-        `;
-      });
-      scriptListContainer.innerHTML = html;
-    }
-
-    // simple escape for innerHTML
-    function escapeHtml(unsafe) {
-      return unsafe.replace(/[&<>"']/g, function(m) {
-        if (m === '&') return '&amp;';
-        if (m === '<') return '&lt;';
-        if (m === '>') return '&gt;';
-        if (m === '"') return '&quot;';
-        return '&#039;';
-      });
-    }
-
-    // ---------- COPY LOADER (global function dipanggil dari onclick) ----------
-    window.copyLoader = function(encodedName, element) {
-      const name = decodeURIComponent(encodedName);
-      const loader = `loadstring(game:HttpGet("${BASE_URL}/loader/${encodeURIComponent(name)}"))()`;
-      navigator.clipboard.writeText(loader).then(() => {
-        const originalText = element.innerText;
-        element.innerText = '✓ Copied!';
-        setTimeout(() => element.innerText = originalText, 1500);
-      }).catch(() => alert('Gagal copy, salin manual: ' + loader));
-    };
-
-    // ---------- DELETE LOCAL SCRIPT ----------
-    window.deleteLocalScript = function(encodedName) {
-      const name = decodeURIComponent(encodedName);
-      if (!confirm(`Hapus script "${name}" dari daftar lokal? (tidak mempengaruhi server)`)) return;
-      let scripts = getLocalScripts();
-      scripts = scripts.filter(s => s.name !== name);
-      saveLocalScripts(scripts);
-      renderScriptList();
-    };
-
-    // ---------- OPEN EDIT MODAL ----------
-    window.openEditModal = function(encodedName) {
-      const name = decodeURIComponent(encodedName);
-      const scripts = getLocalScripts();
-      const script = scripts.find(s => s.name === name);
-      if (!script) {
-        alert('Script tidak ditemukan di penyimpanan lokal.');
-        return;
-      }
+    function openEditModal(name, script, key = '') {
       currentEditName = name;
       editName.value = name;
-      editCode.value = script.code || ''; // simpan juga code? kita perlu menyimpan code saat create
-      editKey.value = ''; // kosong, user harus isi key
+      editCode.value = script;
+      editKey.value = key; // isi jika admin, kosong jika user biasa
       editStatus.innerHTML = '';
-      modalOverlay.style.display = 'flex';
-    };
-
-    // ---------- CLOSE MODAL ----------
-    function closeModal() {
-      modalOverlay.style.display = 'none';
-      currentEditName = null;
-      editKey.value = '';
-      editStatus.innerHTML = '';
+      editModal.style.display = 'flex';
     }
 
-    closeModalBtn.addEventListener('click', closeModal);
-    cancelEditBtn.addEventListener('click', closeModal);
-    window.addEventListener('click', (e) => {
-      if (e.target === modalOverlay) closeModal();
+    closeModalBtn.addEventListener('click', () => {
+      editModal.style.display = 'none';
+      currentEditName = null;
+    });
+    cancelEditBtn.addEventListener('click', () => {
+      editModal.style.display = 'none';
+      currentEditName = null;
     });
 
-    // ---------- SAVE EDIT (UPDATE) ----------
     saveEditBtn.addEventListener('click', async () => {
       if (!currentEditName) return;
       const newCode = editCode.value.trim();
@@ -587,16 +848,21 @@
         const data = await res.json();
         if (res.ok && data.success) {
           editStatus.innerHTML = '<span style="color:#8f8;">✅ Update berhasil!</span>';
-          // perbarui localStorage
-          let scripts = getLocalScripts();
-          const idx = scripts.findIndex(s => s.name === currentEditName);
-          if (idx !== -1) {
-            scripts[idx].code = newCode;
-            saveLocalScripts(scripts);
+          // update localStorage jika ada
+          const localIdx = localScripts.findIndex(s => s.name === currentEditName);
+          if (localIdx !== -1) {
+            localScripts[localIdx].code = newCode;
+            localScripts[localIdx].key = key; // update key juga?
+            saveLocal();
           }
-          setTimeout(() => closeModal(), 1200);
+          setTimeout(() => {
+            editModal.style.display = 'none';
+            currentEditName = null;
+            if (panels.admin.classList.contains('active')) fetchAdminScripts();
+            if (panels.server.classList.contains('active')) fetchServerScripts();
+          }, 1000);
         } else {
-          editStatus.innerHTML = `<span style="color:#f99;">❌ Gagal: ${data.error || 'unknown'}</span>`;
+          editStatus.innerHTML = `<span style="color:#f99;">❌ ${data.error || 'Gagal'}</span>`;
         }
       } catch (err) {
         editStatus.innerHTML = `<span style="color:#f99;">❌ Error: ${err.message}</span>`;
@@ -605,90 +871,29 @@
       }
     });
 
-    // ---------- CREATE SCRIPT ----------
-    createBtn.addEventListener('click', async () => {
-      const name = scriptNameIn.value.trim();
-      const code = scriptCodeIn.value.trim();
-      const key = scriptKeyIn.value.trim();
-
-      if (!name || !code || !key) {
-        createResult.innerHTML = '<div class="loader-box" style="color:#faa;">⚠️ Semua field harus diisi</div>';
-        return;
-      }
-
-      createBtn.disabled = true;
-      createResult.innerHTML = '<div class="loader-box">⏳ Menyimpan...</div>';
-
-      try {
-        const res = await fetch(`${BASE_URL}/create`, {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ name, script: code, key })
-        });
-        const data = await res.json();
-        if (res.ok && data.success) {
-          const loader = `loadstring(game:HttpGet("${BASE_URL}/loader/${encodeURIComponent(name)}"))()`;
-          createResult.innerHTML = `
-            <div class="loader-box">
-              <span style="font-family: monospace;">${loader}</span>
-              <span class="copy-btn" onclick="copyText(this, '${loader.replace(/'/g, "\\'")}')">📋 Copy</span>
-            </div>
-            <small style="color:#8f8;">✅ Script tersimpan di server & daftar lokal</small>
-          `;
-          // simpan ke localStorage
-          let scripts = getLocalScripts();
-          // cek duplikat nama, hapus yang lama jika ada (seharusnya sudah unik di server)
-          scripts = scripts.filter(s => s.name !== name);
-          scripts.push({ name, code, key });
-          saveLocalScripts(scripts);
-          // reset form
-          scriptNameIn.value = '';
-          scriptCodeIn.value = 'print("Hello again!")';
-          scriptKeyIn.value = 'rahasia123';
-        } else {
-          createResult.innerHTML = `<div class="loader-box" style="color:#faa;">❌ Error: ${data.error || 'Gagal'}</div>`;
-        }
-      } catch (err) {
-        createResult.innerHTML = `<div class="loader-box" style="color:#faa;">❌ Network error: ${err.message}</div>`;
-      } finally {
-        createBtn.disabled = false;
-      }
-    });
-
-    // copy text helper
-    window.copyText = function(el, text) {
+    // ---------- Utility ----------
+    window.copyText = function(element, text) {
       navigator.clipboard.writeText(text).then(() => {
-        const orig = el.innerText;
-        el.innerText = 'Copied!';
-        setTimeout(() => el.innerText = orig, 1500);
-      }).catch(() => alert('Copy manual: ' + text));
-    };
-
-    // refresh list (panggil render ulang)
-    refreshBtn.addEventListener('click', () => {
-      renderScriptList();
-    });
-
-    // inisialisasi: render list saat pertama
-    function updateStatsAndList() {
-      const scripts = getLocalScripts();
-      scriptCountSpan.innerText = scripts.length;
-      // jika panel scripts sedang aktif, render ulang
-      if (scriptsPanel.classList.contains('active')) {
-        renderScriptList();
-      }
-    }
-
-    // tambahan: agar tombol copy di loader hasil create juga berfungsi
-    window.copyLoaderInline = function(btn, loader) {
-      navigator.clipboard.writeText(loader).then(() => {
-        btn.innerText = 'Copied!';
-        setTimeout(() => btn.innerText = 'Copy', 1500);
+        const original = element.innerText;
+        element.innerText = '✅ Copied!';
+        setTimeout(() => element.innerText = original, 1500);
       });
     };
 
-    // jalankan di awal
-    renderScriptList();
+    function escapeHtml(unsafe) {
+      return unsafe.replace(/[&<>"']/g, function(m) {
+        if (m === '&') return '&amp;';
+        if (m === '<') return '&lt;';
+        if (m === '>') return '&gt;';
+        if (m === '"') return '&quot;';
+        return '&#039;';
+      });
+    }
+
+    // Inisialisasi
+    renderLocal();
+    fetchServerScripts(); // ambil count awal
+    // Update count server secara periodik?
   })();
 </script>
 </body>
