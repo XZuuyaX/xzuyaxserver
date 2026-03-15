@@ -1,130 +1,343 @@
 <!DOCTYPE html>
-<html lang="id">
+<html lang="en">
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Lua Script Manager</title>
+
+<title>Lua Script Cloud</title>
+
 <style>
-body {
-    font-family: sans-serif;
-    background: #1e1e2f;
-    color: #eee;
-    margin: 0; padding: 0;
-    display: flex; justify-content: center; align-items: center;
-    min-height: 100vh;
+
+*{
+box-sizing:border-box;
 }
-.container {
-    width: 100%; max-width: 700px;
-    background: #2a2a3d;
-    padding: 30px;
-    border-radius: 15px;
+
+body{
+margin:0;
+font-family:Inter,Segoe UI,system-ui;
+background:linear-gradient(135deg,#0f2027,#203a43,#2c5364);
+color:white;
+min-height:100vh;
 }
-h1 {
-    text-align: center;
-    margin-bottom: 20px;
-    font-size: 2em;
+
+.container{
+max-width:1050px;
+margin:auto;
+padding:35px 25px;
 }
-.tabs {
-    display: flex; margin-bottom: 20px;
+
+.header{
+display:flex;
+justify-content:space-between;
+align-items:center;
+margin-bottom:30px;
 }
-.tab {
-    flex: 1; padding: 10px; text-align: center;
-    cursor: pointer; background: #3a3a4d; margin-right: 5px;
-    border-radius: 8px; user-select: none;
+
+.title{
+font-size:26px;
+font-weight:600;
+letter-spacing:.5px;
 }
-.tab:last-child { margin-right: 0; }
-.tab.active { background: #667eea; color: #fff; }
-.panel { display: none; }
-.panel.active { display: block; }
-.form-group { margin-bottom: 15px; }
-label { display: block; margin-bottom: 5px; }
-input, textarea {
-    width: 100%; padding: 10px;
-    border-radius: 6px; border: none;
-    background: #1f1f2d; color: #eee;
-    font-family: monospace;
+
+.stats{
+display:grid;
+grid-template-columns:repeat(auto-fit,minmax(180px,1fr));
+gap:18px;
+margin-bottom:30px;
 }
-textarea { resize: vertical; min-height: 120px; }
-button {
-    padding: 10px; border: none; border-radius: 6px;
-    background: #667eea; color: #fff; cursor: pointer;
+
+.card{
+background:rgba(255,255,255,0.06);
+backdrop-filter:blur(10px);
+padding:20px;
+border-radius:14px;
+box-shadow:0 10px 25px rgba(0,0,0,0.35);
 }
-button.secondary { background: #555; margin-left: 5px; }
-.result {
-    margin-top: 15px;
-    padding: 10px;
-    background: #1f1f2d;
-    border-left: 4px solid #667eea;
-    word-break: break-word;
+
+.card h3{
+margin:0;
+font-size:13px;
+opacity:.7;
 }
-.result.error { border-left-color: #ff6b6b; color: #ffb3b3; }
-.result.success { border-left-color: #4caf50; }
-.copy-btn { margin-top: 8px; padding: 5px 10px; cursor: pointer; background:#444; color:#eee; border:none; border-radius:4px; }
-.copy-btn:hover { background:#555; }
+
+.card p{
+font-size:24px;
+margin:6px 0 0;
+font-weight:600;
+}
+
+.tabs{
+display:flex;
+gap:10px;
+margin-bottom:25px;
+}
+
+.tab{
+padding:10px 18px;
+background:rgba(255,255,255,0.07);
+border-radius:8px;
+cursor:pointer;
+font-size:14px;
+}
+
+.tab.active{
+background:#5b7cff;
+}
+
+.panel{
+display:none;
+}
+
+.panel.active{
+display:block;
+}
+
+label{
+font-size:14px;
+opacity:.8;
+}
+
+input,textarea{
+width:100%;
+padding:12px;
+margin-top:6px;
+margin-bottom:15px;
+border:none;
+border-radius:8px;
+background:#0f1115;
+color:white;
+font-size:14px;
+}
+
+textarea{
+min-height:150px;
+font-family:monospace;
+}
+
+button{
+padding:11px 18px;
+border:none;
+border-radius:8px;
+cursor:pointer;
+background:#5b7cff;
+color:white;
+font-size:14px;
+}
+
+button:hover{
+opacity:.9;
+}
+
+button.secondary{
+background:#3c3f46;
+}
+
+.scriptList{
+margin-top:15px;
+display:flex;
+flex-direction:column;
+gap:12px;
+}
+
+.scriptItem{
+background:rgba(255,255,255,0.05);
+padding:16px;
+border-radius:12px;
+display:flex;
+justify-content:space-between;
+align-items:flex-start;
+gap:15px;
+}
+
+.scriptItem b{
+font-size:15px;
+}
+
+.loaderBox{
+background:#0a0c10;
+padding:10px;
+border-radius:8px;
+margin-top:8px;
+font-family:monospace;
+font-size:13px;
+word-break:break-all;
+display:flex;
+justify-content:space-between;
+align-items:center;
+gap:10px;
+}
+
+.copy{
+background:#22252b;
+padding:5px 10px;
+border-radius:6px;
+cursor:pointer;
+font-size:12px;
+}
+
+.copy:hover{
+background:#333;
+}
+
 </style>
 </head>
+
 <body>
+
 <div class="container">
-    <h1>Lua Script Manager</h1>
-    <div class="tabs">
-        <div class="tab active" onclick="switchTab('create')">Create</div>
-        <div class="tab" onclick="switchTab('edit')">Edit</div>
-    </div>
 
-    <div id="create-panel" class="panel active">
-        <div class="form-group">
-            <label>Script Name</label>
-            <input type="text" id="create-name">
-        </div>
-        <div class="form-group">
-            <label>Lua Script</label>
-            <textarea id="create-script">print("Hello!")</textarea>
-        </div>
-        <div class="form-group">
-            <label>Key</label>
-            <input type="text" id="create-key">
-        </div>
-        <button onclick="createScript()">Create</button>
-        <div id="create-result" class="result" style="display:none;"></div>
-    </div>
+<div class="header">
+<div class="title">🚀 Lua Script Cloud</div>
+</div>
 
-    <div id="edit-panel" class="panel">
-        <div class="form-group">
-            <label>Script ID</label>
-            <input type="text" id="edit-id">
-        </div>
-        <div class="form-group">
-            <label>Key</label>
-            <input type="text" id="edit-key">
-        </div>
-        <button onclick="loadScript()">Load</button>
-        <button onclick="getMainLoader()" class="secondary">Get Loader</button>
+<div class="stats">
 
-        <div id="edit-form" style="display:none; margin-top:15px;">
-            <div class="form-group">
-                <label>Edit Script</label>
-                <textarea id="edit-script"></textarea>
-            </div>
-            <button onclick="saveScript()">Save</button>
-            <button onclick="getMainLoader()" class="secondary">Get Loader</button>
-            <div id="edit-result" class="result" style="display:none;"></div>
-        </div>
-    </div>
+<div class="card">
+<h3>Total Scripts</h3>
+<p id="scriptCount">0</p>
+</div>
+
+<div class="card">
+<h3>Server</h3>
+<p>Online</p>
+</div>
+
+<div class="card">
+<h3>Status</h3>
+<p>Secure</p>
+</div>
+
+</div>
+
+<div class="tabs">
+<div class="tab active" onclick="tab(event,'create')">Create</div>
+<div class="tab" onclick="tab(event,'scripts')">Scripts</div>
+</div>
+
+<div id="create" class="panel active">
+
+<label>Script Name</label>
+<input id="name">
+
+<label>Lua Script</label>
+<textarea id="code">print("Hello Executor")</textarea>
+
+<button onclick="createScript()">Create Script</button>
+
+<div id="createResult"></div>
+
+</div>
+
+<div id="scripts" class="panel">
+
+<div id="scriptList" class="scriptList"></div>
+
+</div>
+
 </div>
 
 <script>
-const BASE_URL = 'http://localhost:3000';
 
-function switchTab(tab){
-    document.querySelectorAll('.tab').forEach(t=>t.classList.remove('active'));
-    document.querySelectorAll('.panel').forEach(p=>p.classList.remove('active'));
-    document.querySelector(`.tab:contains("${tab==='create'?'Create':'Edit'}")`).classList.add('active');
-    document.getElementById(`${tab}-panel`).classList.add('active');
+const BASE_URL="https://xzuyaxserver.up.railway.app"
+
+let scripts=[]
+
+function tab(e,id){
+
+document.querySelectorAll(".tab").forEach(t=>t.classList.remove("active"))
+e.target.classList.add("active")
+
+document.querySelectorAll(".panel").forEach(p=>p.classList.remove("active"))
+document.getElementById(id).classList.add("active")
+
 }
 
-// --- JS fungsi create, load, save, loader sama persis seperti sebelumnya
-// Bisa pakai yang sudah ada, tidak perlu diubah
+async function createScript(){
+
+const name=document.getElementById("name").value
+const code=document.getElementById("code").value
+
+const res=await fetch(BASE_URL+"/scripts",{
+method:"POST",
+headers:{'Content-Type':'application/json'},
+body:JSON.stringify({name,code})
+})
+
+const data=await res.json()
+
+document.getElementById("createResult").innerHTML=`
+
+<div class="loaderBox">
+
+<span>loadstring(game:HttpGet("${BASE_URL}/loader/${name}"))()</span>
+
+<span class="copy" onclick="copy(this)">Copy</span>
+
+</div>
+`
+
+scripts.push(name)
+updateList()
+
+}
+
+function updateList(){
+
+const list=document.getElementById("scriptList")
+list.innerHTML=""
+
+scripts.forEach(name=>{
+
+list.innerHTML+=`
+
+<div class="scriptItem">
+
+<div>
+
+<b>${name}</b>
+
+<div class="loaderBox">
+
+<span>loadstring(game:HttpGet("${BASE_URL}/loader/${name}"))()</span>
+
+<span class="copy" onclick="copy(this)">Copy</span>
+
+</div>
+
+</div>
+
+<button onclick="deleteScript('${name}')">Delete</button>
+
+</div>
+
+`
+
+})
+
+document.getElementById("scriptCount").innerText=scripts.length
+
+}
+
+function copy(el){
+
+const text=el.parentElement.innerText.replace("Copy","")
+
+navigator.clipboard.writeText(text)
+
+el.innerText="Copied"
+
+setTimeout(()=>el.innerText="Copy",1500)
+
+}
+
+function deleteScript(name){
+
+scripts=scripts.filter(s=>s!==name)
+updateList()
+
+}
 
 </script>
+
 </body>
 </html>
