@@ -5,19 +5,18 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Lua Script Cloud · Admin Dashboard</title>
   <style>
+    /* (CSS tetap sama seperti sebelumnya, tidak perlu diubah) */
     * {
       box-sizing: border-box;
       margin: 0;
       font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
     }
-
     body {
       background: linear-gradient(145deg, #0b1a24 0%, #1c2f3f 100%);
       min-height: 100vh;
       color: #eef4f8;
       padding: 2rem 1.5rem;
     }
-
     .glass {
       background: rgba(20, 35, 45, 0.7);
       backdrop-filter: blur(12px);
@@ -26,12 +25,10 @@
       border-radius: 28px;
       box-shadow: 0 20px 40px -12px rgba(0, 0, 0, 0.5);
     }
-
     .container {
       max-width: 1200px;
       margin: 0 auto;
     }
-
     .header {
       display: flex;
       align-items: center;
@@ -40,7 +37,6 @@
       flex-wrap: wrap;
       gap: 1rem;
     }
-
     .logo h1 {
       font-weight: 600;
       font-size: 1.9rem;
@@ -51,7 +47,6 @@
       background-clip: text;
       margin: 0;
     }
-
     .badge {
       background: rgba(72, 140, 200, 0.2);
       padding: 0.5rem 1.2rem;
@@ -60,14 +55,12 @@
       border: 1px solid rgba(100, 170, 240, 0.3);
       color: #b3defa;
     }
-
     .stats {
       display: grid;
       grid-template-columns: repeat(auto-fit, minmax(170px, 1fr));
       gap: 1.2rem;
       margin-bottom: 2.2rem;
     }
-
     .stat-card {
       background: rgba(12, 28, 40, 0.7);
       backdrop-filter: blur(8px);
@@ -75,7 +68,6 @@
       padding: 1.3rem 1.2rem;
       border: 1px solid rgba(90, 150, 200, 0.15);
     }
-
     .stat-label {
       font-size: 0.85rem;
       text-transform: uppercase;
@@ -83,14 +75,12 @@
       color: #9bbdd5;
       margin-bottom: 0.4rem;
     }
-
     .stat-value {
       font-size: 2.4rem;
       font-weight: 600;
       line-height: 1;
       color: white;
     }
-
     .tabs {
       display: flex;
       gap: 0.5rem;
@@ -101,7 +91,6 @@
       width: fit-content;
       flex-wrap: wrap;
     }
-
     .tab {
       padding: 0.7rem 2rem;
       border-radius: 30px;
@@ -111,32 +100,26 @@
       color: #bbd6ee;
       border: 1px solid transparent;
     }
-
     .tab.active {
       background: #2f5570;
       color: white;
       box-shadow: 0 6px 14px rgba(0, 40, 60, 0.6);
       border-color: #3f779b;
     }
-
     .panel {
       display: none;
       animation: fade 0.25s ease;
     }
-
     .panel.active {
       display: block;
     }
-
     @keyframes fade {
       from { opacity: 0.3; }
       to { opacity: 1; }
     }
-
     .form-group {
       margin-bottom: 1.6rem;
     }
-
     label {
       display: block;
       margin-bottom: 0.5rem;
@@ -144,7 +127,6 @@
       font-weight: 500;
       color: #c5dff5;
     }
-
     input, textarea, select {
       width: 100%;
       background: #10232f;
@@ -156,18 +138,15 @@
       transition: 0.2s;
       outline: none;
     }
-
     input:focus, textarea:focus {
       border-color: #5c9fd4;
       box-shadow: 0 0 0 3px rgba(80, 160, 240, 0.2);
     }
-
     textarea {
       resize: vertical;
       min-height: 150px;
       font-family: 'JetBrains Mono', monospace;
     }
-
     button {
       background: #2a5f85;
       border: none;
@@ -181,23 +160,19 @@
       border: 1px solid #3d7aa8;
       box-shadow: 0 6px 14px rgba(0, 40, 60, 0.4);
     }
-
     button:hover {
       background: #3275a2;
       transform: scale(1.02);
     }
-
     button.secondary {
       background: transparent;
       border: 1px solid #457b9d;
       color: #cbe5fe;
       box-shadow: none;
     }
-
     button.secondary:hover {
       background: #1f435a;
     }
-
     button.danger {
       background: #8b2c2c;
       border-color: #b14d4d;
@@ -205,7 +180,6 @@
     button.danger:hover {
       background: #a53a3a;
     }
-
     .loader-box {
       background: #0b1c28;
       border-radius: 24px;
@@ -221,7 +195,6 @@
       gap: 0.8rem;
       flex-wrap: wrap;
     }
-
     .copy-btn {
       background: #1d3e55;
       padding: 0.4rem 1.2rem;
@@ -232,17 +205,14 @@
       transition: 0.1s;
       white-space: nowrap;
     }
-
     .copy-btn:hover {
       background: #275c7a;
     }
-
     .script-list {
       display: flex;
       flex-direction: column;
       gap: 0.9rem;
     }
-
     .script-item {
       background: rgba(15, 33, 48, 0.8);
       backdrop-filter: blur(4px);
@@ -255,23 +225,19 @@
       justify-content: space-between;
       gap: 1rem;
     }
-
     .script-info h3 {
       font-weight: 500;
       font-size: 1.3rem;
       margin-bottom: 0.2rem;
     }
-
     .script-info small {
       color: #8db3d0;
     }
-
     .script-actions {
       display: flex;
       gap: 0.6rem;
       flex-wrap: wrap;
     }
-
     .badge-sm {
       background: #1b3d52;
       border-radius: 30px;
@@ -280,7 +246,6 @@
       border: 1px solid #346180;
       cursor: pointer;
     }
-
     .key-display {
       background: #0e2634;
       padding: 0.2rem 0.8rem;
@@ -289,7 +254,6 @@
       font-family: monospace;
       margin-left: 0.5rem;
     }
-
     .modal-overlay {
       position: fixed;
       top: 0; left: 0; width: 100%; height: 100%;
@@ -300,7 +264,6 @@
       justify-content: center;
       z-index: 1000;
     }
-
     .modal {
       background: #153544;
       border-radius: 32px;
@@ -312,19 +275,16 @@
       max-height: 80vh;
       overflow-y: auto;
     }
-
     .modal h2 {
       margin-top: 0;
       margin-bottom: 1.5rem;
     }
-
     .close-modal {
       float: right;
       font-size: 1.6rem;
       cursor: pointer;
       color: #b0cde0;
     }
-
     .login-box {
       background: #10232f;
       border-radius: 28px;
@@ -472,13 +432,13 @@
   (function() {
     // ---------- CONFIG ----------
     const BASE_URL = 'https://xzuyaxserver.up.railway.app'; // ganti sesuai domain railway
-    const ADMIN_PASSWORD = 'admin123'; // harus sama dengan ADMIN_PASSWORD di server
+    // Gunakan password yang sama dengan default di server (xzuyaxhubscriptowner)
+    const ADMIN_PASSWORD = 'xzuyaxhubscriptowner'; // <- INI YANG DIUBAH
 
     // ---------- LOCAL STORAGE ----------
     const STORAGE_KEY = 'lua_scripts_list';
     let localScripts = [];
 
-    // Load local scripts
     function loadLocal() {
       try {
         localScripts = JSON.parse(localStorage.getItem(STORAGE_KEY)) || [];
@@ -504,13 +464,13 @@
       admin: document.getElementById('adminPanel')
     };
 
-    let isAdmin = false; // status login
+    let isAdmin = false;
 
     // Tab switching
     tabs.forEach(tab => {
       tab.addEventListener('click', () => {
         const target = tab.dataset.tab;
-        if (target === 'admin' && !isAdmin) return; // tidak bisa akses admin jika belum login
+        if (target === 'admin' && !isAdmin) return;
         tabs.forEach(t => t.classList.remove('active'));
         tab.classList.add('active');
         Object.values(panels).forEach(p => p.classList.remove('active'));
@@ -548,7 +508,6 @@
         logoutBtn.style.display = 'inline-block';
         adminTab.style.display = 'inline-block';
         document.getElementById('adminStatus').innerText = '👑 Admin';
-        // jika sedang di tab admin, refresh
         if (panels.admin.classList.contains('active')) {
           fetchAdminScripts();
         }
@@ -564,7 +523,6 @@
       logoutBtn.style.display = 'none';
       adminTab.style.display = 'none';
       document.getElementById('adminStatus').innerText = '🔒';
-      // jika tab admin aktif, pindah ke create
       if (panels.admin.classList.contains('active')) {
         document.querySelector('.tab[data-tab="create"]').click();
       }
@@ -605,11 +563,9 @@
             </div>
             <small style="color:#8f8;">✅ Script tersimpan di server</small>
           `;
-          // Simpan ke lokal juga
           localScripts = localScripts.filter(s => s.name !== name);
           localScripts.push({ name, code, key });
           saveLocal();
-          // Reset form
           scriptName.value = '';
           scriptCode.value = 'print("Hello again!")';
           scriptKey.value = 'rahasia123';
@@ -662,8 +618,6 @@
       const name = decodeURIComponent(encodedName);
       const script = localScripts.find(s => s.name === name);
       if (!script) return;
-      // buka modal edit dengan data lokal? Tapi lebih baik edit di server, jadi arahkan ke server edit
-      // Kita gunakan modal yang sama dengan mengisi nama dan key
       openEditModal(name, script.code, script.key);
     };
 
@@ -720,7 +674,7 @@
       try {
         const res = await fetch(`${BASE_URL}/admin/scripts?password=${encodeURIComponent(ADMIN_PASSWORD)}`);
         if (!res.ok) throw new Error(`HTTP ${res.status}`);
-        const scripts = await res.json(); // array of { name, key }
+        const scripts = await res.json();
         if (scripts.length === 0) {
           adminList.innerHTML = '<div style="padding:2rem;">📭 Tidak ada script.</div>';
           return;
@@ -761,8 +715,6 @@
 
     window.adminEditScript = function(encodedName) {
       const name = decodeURIComponent(encodedName);
-      // Bisa ambil dulu script content, lalu buka modal edit dengan key sudah terisi?
-      // Sederhana: buka modal edit, isi nama, user harus tahu key? Tapi admin bisa lihat key, jadi kita isikan otomatis.
       fetch(`${BASE_URL}/admin/script/${encodeURIComponent(name)}?password=${encodeURIComponent(ADMIN_PASSWORD)}`)
         .then(res => res.json())
         .then(data => {
@@ -782,7 +734,7 @@
         if (data.success) {
           alert('Script dihapus');
           fetchAdminScripts();
-          fetchServerScripts(); // update count
+          fetchServerScripts();
         } else {
           alert('Gagal: ' + data.error);
         }
@@ -793,7 +745,7 @@
 
     refreshAdminBtn.addEventListener('click', fetchAdminScripts);
 
-    // ---------- Modal Edit (umum) ----------
+    // ---------- Modal Edit ----------
     const editModal = document.getElementById('editModal');
     const closeModalBtn = document.getElementById('closeModalBtn');
     const cancelEditBtn = document.getElementById('cancelEditBtn');
@@ -809,7 +761,7 @@
       currentEditName = name;
       editName.value = name;
       editCode.value = script;
-      editKey.value = key; // isi jika admin, kosong jika user biasa
+      editKey.value = key;
       editStatus.innerHTML = '';
       editModal.style.display = 'flex';
     }
@@ -848,11 +800,10 @@
         const data = await res.json();
         if (res.ok && data.success) {
           editStatus.innerHTML = '<span style="color:#8f8;">✅ Update berhasil!</span>';
-          // update localStorage jika ada
           const localIdx = localScripts.findIndex(s => s.name === currentEditName);
           if (localIdx !== -1) {
             localScripts[localIdx].code = newCode;
-            localScripts[localIdx].key = key; // update key juga?
+            localScripts[localIdx].key = key;
             saveLocal();
           }
           setTimeout(() => {
@@ -892,8 +843,7 @@
 
     // Inisialisasi
     renderLocal();
-    fetchServerScripts(); // ambil count awal
-    // Update count server secara periodik?
+    fetchServerScripts();
   })();
 </script>
 </body>
