@@ -1,0 +1,239 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<title>Lua Script Manager</title>
+
+<style>
+
+body{
+background:#0f172a;
+color:white;
+font-family:Segoe UI;
+display:flex;
+justify-content:center;
+align-items:center;
+min-height:100vh;
+}
+
+.container{
+width:900px;
+max-width:95%;
+background:#1e293b;
+padding:30px;
+border-radius:15px;
+box-shadow:0 10px 40px rgba(0,0,0,.6);
+}
+
+h1{
+text-align:center;
+margin-bottom:20px;
+}
+
+.tabs{
+display:flex;
+gap:10px;
+margin-bottom:25px;
+}
+
+.tab{
+flex:1;
+padding:12px;
+text-align:center;
+background:#334155;
+border-radius:8px;
+cursor:pointer;
+}
+
+.tab.active{
+background:#6366f1;
+}
+
+.panel{
+display:none;
+}
+
+.panel.active{
+display:block;
+}
+
+input,textarea{
+width:100%;
+padding:12px;
+margin-top:6px;
+margin-bottom:15px;
+background:#0f172a;
+border:1px solid #475569;
+border-radius:8px;
+color:white;
+}
+
+textarea{
+min-height:150px;
+font-family:monospace;
+}
+
+button{
+width:100%;
+padding:14px;
+border:none;
+border-radius:8px;
+background:#6366f1;
+color:white;
+font-weight:bold;
+cursor:pointer;
+}
+
+button:hover{
+opacity:.9;
+}
+
+.result{
+margin-top:20px;
+background:#020617;
+padding:15px;
+border-radius:10px;
+}
+
+pre{
+background:#020617;
+padding:10px;
+overflow:auto;
+}
+
+</style>
+</head>
+
+<body>
+
+<div class="container">
+
+<h1>Lua Script Manager</h1>
+
+<div class="tabs">
+<div class="tab active" onclick="switchTab('create')">Create</div>
+<div class="tab" onclick="switchTab('edit')">Edit</div>
+</div>
+
+<div id="create" class="panel active">
+
+<label>Script Name</label>
+<input id="create-name">
+
+<label>Script Code</label>
+<textarea id="create-script"></textarea>
+
+<label>Key</label>
+<input id="create-key">
+
+<button onclick="createScript()">Create Script</button>
+
+<div id="create-result" class="result"></div>
+
+</div>
+
+
+<div id="edit" class="panel">
+
+<label>Script ID</label>
+<input id="edit-id">
+
+<label>Key</label>
+<input id="edit-key">
+
+<button onclick="loadScript()">Load Script</button>
+
+<textarea id="edit-script"></textarea>
+
+<button onclick="saveScript()">Save Script</button>
+
+<div id="edit-result" class="result"></div>
+
+</div>
+
+</div>
+
+<script>
+
+const BASE_URL="https://xzuyaxserver.up.railway.app"
+
+function switchTab(tab){
+
+document.querySelectorAll(".tab").forEach(t=>t.classList.remove("active"))
+document.querySelectorAll(".panel").forEach(p=>p.classList.remove("active"))
+
+if(tab==="create"){
+document.querySelectorAll(".tab")[0].classList.add("active")
+document.getElementById("create").classList.add("active")
+}else{
+document.querySelectorAll(".tab")[1].classList.add("active")
+document.getElementById("edit").classList.add("active")
+}
+
+}
+
+async function createScript(){
+
+let name=document.getElementById("create-name").value
+let script=document.getElementById("create-script").value
+let key=document.getElementById("create-key").value
+
+let res=await fetch(BASE_URL+"/create",{
+
+method:"POST",
+headers:{"Content-Type":"application/json"},
+body:JSON.stringify({name,script,key})
+
+})
+
+let data=await res.json()
+
+document.getElementById("create-result").innerHTML=`
+
+Loader:
+
+<pre>${data.loader}</pre>
+
+`
+
+}
+
+async function loadScript(){
+
+let id=document.getElementById("edit-id").value
+let key=document.getElementById("edit-key").value
+
+let res=await fetch(BASE_URL+"/"+id+"?key="+key)
+
+let text=await res.text()
+
+document.getElementById("edit-script").value=text
+
+}
+
+async function saveScript(){
+
+let id=document.getElementById("edit-id").value
+let key=document.getElementById("edit-key").value
+let script=document.getElementById("edit-script").value
+
+let res=await fetch(BASE_URL+"/"+id,{
+
+method:"POST",
+headers:{"Content-Type":"application/json"},
+body:JSON.stringify({script,key})
+
+})
+
+let data=await res.json()
+
+document.getElementById("edit-result").innerHTML="Updated"
+
+}
+
+</script>
+
+</body>
+</html>
