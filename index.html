@@ -1,140 +1,284 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="id">
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-
-<title>Lua Script Cloud</title>
-
+<title>🔐 Lua Script Manager Pro</title>
+<link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono&family=Montserrat:wght@400;600;700&display=swap" rel="stylesheet">
 <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Montserrat', sans-serif; }
+    body {
+        min-height: 100vh;
+        display: flex; justify-content: center; align-items: center;
+        background: linear-gradient(135deg, #0f0c29, #302b63, #24243e);
+        color: #fff; padding: 20px;
+        animation: bgShift 20s infinite alternate;
+    }
+    @keyframes bgShift {
+        0% { background-position: 0% 50%; }
+        100% { background-position: 100% 50%; }
+    }
 
-*{
-box-sizing:border-box;
+    .container {
+        width: 100%; max-width: 900px;
+        background: rgba(255, 255, 255, 0.05);
+        backdrop-filter: blur(15px);
+        border-radius: 25px; padding: 35px;
+        box-shadow: 0 20px 50px rgba(0,0,0,0.7);
+        border: 1px solid rgba(255,255,255,0.1);
+        overflow: hidden;
+    }
+    h1 {
+        text-align: center; font-size: 3em;
+        color: #00ffe0;
+        text-shadow: 0 0 15px #00ffe0, 0 0 30px #00ffe0;
+        margin-bottom: 5px;
+    }
+    .subtitle {
+        text-align: center; color: #a0a0ff;
+        font-style: italic; margin-bottom: 35px;
+    }
+
+    /* Tabs */
+    .tabs {
+        display: flex; gap: 12px; margin-bottom: 35px;
+    }
+    .tab {
+        flex: 1; text-align: center; padding: 16px;
+        border-radius: 15px; cursor: pointer;
+        font-weight: 600; letter-spacing: 1px;
+        background: rgba(255,255,255,0.1);
+        transition: 0.3s ease;
+        border: 1px solid rgba(255,255,255,0.2);
+    }
+    .tab:hover { background: rgba(255,255,255,0.2); transform: translateY(-2px); }
+    .tab.active {
+        background: linear-gradient(45deg, #667eea, #764ba2);
+        border-color: transparent; box-shadow: 0 5px 20px rgba(102,126,234,0.4);
+    }
+
+    .panel { display: none; animation: fadeIn 0.5s ease; }
+    .panel.active { display: block; }
+    @keyframes fadeIn { from {opacity:0; transform:translateY(15px);} to {opacity:1; transform:translateY(0);} }
+
+    /* Form */
+    .form-group { margin-bottom: 22px; }
+    label { display: block; margin-bottom: 8px; color: #ddd; font-weight: 500; }
+    input, textarea {
+        width: 100%; padding: 14px 18px;
+        background: rgba(0,0,0,0.35); border: 1px solid rgba(255,255,255,0.2);
+        border-radius: 12px; font-size: 16px; color: #fff;
+        font-family: 'JetBrains Mono', monospace;
+        transition: all 0.3s ease;
+    }
+    input:focus, textarea:focus {
+        outline: none; border-color: #00ffe0;
+        box-shadow: 0 0 0 3px rgba(0,255,224,0.3);
+    }
+    textarea { min-height: 160px; resize: vertical; }
+
+    /* Buttons */
+    .button-group { display: flex; gap: 12px; margin-top: 20px; }
+    button {
+        flex: 1; padding: 16px;
+        border: none; border-radius: 12px;
+        font-weight: 600; font-size: 16px; cursor: pointer;
+        background: linear-gradient(45deg, #667eea, #764ba2);
+        color: #fff; box-shadow: 0 6px 20px rgba(102,126,234,0.4);
+        transition: all 0.3s ease;
+    }
+    button:hover { transform: translateY(-2px); box-shadow: 0 10px 30px rgba(102,126,234,0.6); }
+    button:active { transform: translateY(0); }
+
+    .secondary-btn { background: linear-gradient(45deg, #4a5568, #2d3748); }
+
+    /* Result box */
+    .result {
+        margin-top: 28px; padding: 18px;
+        background: rgba(0,0,0,0.35); border-radius: 12px;
+        border-left: 5px solid #667eea;
+        word-break: break-word;
+    }
+    .result.success { border-left-color: #4caf50; }
+    .result.error { border-left-color: #ff6b6b; color: #ffb3b3; }
+    .result pre {
+        background: #1e1e2f; padding: 12px; border-radius: 8px;
+        overflow-x: auto; color: #a0ffa0;
+    }
+    .info { font-size: 0.9em; color: #aaa; margin-top: 6px; }
+    .copy-btn {
+        display: inline-block; margin-top: 10px;
+        padding: 10px 14px; font-size: 14px;
+        border-radius: 8px; cursor: pointer;
+        background: #2d2d5a; transition: 0.3s;
+    }
+    .copy-btn:hover { background: #3d3d7a; }
+
+    /* Footer */
+    footer {
+        text-align: center; margin-top: 40px; font-size: 0.85em;
+        color: #888; animation: fadeIn 2s ease;
+    }
+</style>
+</head>
+<body>
+<div class="container">
+    <h1>🔐 Lua Script Manager Pro</h1>
+    <div class="subtitle">Create, Edit & Obfuscate Scripts with 2-Layer Loader</div>
+
+    <div class="tabs">
+        <div class="tab active" onclick="switchTab('create')">✨ Create New</div>
+        <div class="tab" onclick="switchTab('edit')">📝 Edit Existing</div>
+    </div>
+
+    <!-- Panel Create -->
+    <div id="create-panel" class="panel active">
+        <div class="form-group">
+            <label>📛 Script Name (unique ID)</label>
+            <input type="text" id="create-name" placeholder="e.g., mycoolscript">
+        </div>
+        <div class="form-group">
+            <label>📜 Script Content (Lua)</label>
+            <textarea id="create-script">print("Hello from executor!")</textarea>
+        </div>
+        <div class="form-group">
+            <label>🔑 Key (password for editing)</label>
+            <input type="text" id="create-key" placeholder="e.g., 12345">
+        </div>
+        <button onclick="createScript()">🚀 Create Script</button>
+        <div id="create-result" class="result" style="display:none;"></div>
+    </div>
+
+    <!-- Panel Edit -->
+    <div id="edit-panel" class="panel">
+        <div class="form-group">
+            <label>📛 Script ID</label>
+            <input type="text" id="edit-id" placeholder="e.g., mycoolscript">
+        </div>
+        <div class="form-group">
+            <label>🔑 Key</label>
+            <input type="text" id="edit-key" placeholder="Enter your key">
+        </div>
+        <div class="button-group">
+            <button onclick="loadScript()">📂 Load Script</button>
+            <button onclick="getMainLoader()" class="secondary-btn">🔗 Get Loader</button>
+        </div>
+
+        <div id="edit-form" style="display:none; margin-top:30px;">
+            <div class="form-group">
+                <label>📜 Edit Script</label>
+                <textarea id="edit-script" rows="10"></textarea>
+            </div>
+            <div class="button-group">
+                <button onclick="saveScript()">💾 Save Changes</button>
+                <button onclick="getMainLoader()" class="secondary-btn">🔗 Get Loader</button>
+            </div>
+            <div id="edit-result" class="result" style="display:none;"></div>
+        </div>
+    </div>
+</div>
+
+<footer>© 2026 Lua Script Manager Pro — Powered by YourServer</footer>
+
+<script>
+const BASE_URL = 'http://localhost:3000'; // Ganti sesuai server
+
+function switchTab(tab) {
+    document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+    document.querySelectorAll('.panel').forEach(p => p.classList.remove('active'));
+    if(tab==='create') {
+        document.querySelector('.tab[onclick="switchTab(\'create\')"]').classList.add('active');
+        document.getElementById('create-panel').classList.add('active');
+    } else {
+        document.querySelector('.tab[onclick="switchTab(\'edit\')"]').classList.add('active');
+        document.getElementById('edit-panel').classList.add('active');
+    }
 }
 
-body{
-margin:0;
-font-family:Inter,Segoe UI,system-ui;
-background:linear-gradient(135deg,#0f2027,#203a43,#2c5364);
-color:white;
-min-height:100vh;
+async function createScript() {
+    const name = document.getElementById('create-name').value.trim();
+    const script = document.getElementById('create-script').value.trim();
+    const key = document.getElementById('create-key').value.trim();
+    const resultDiv = document.getElementById('create-result');
+    if(!name||!script||!key){ showResult(resultDiv,'Semua field harus diisi','error'); return; }
+
+    try {
+        const res = await fetch(`${BASE_URL}/create`,{
+            method:'POST', headers:{'Content-Type':'application/json'},
+            body:JSON.stringify({name,script,key})
+        });
+        const data = await res.json();
+        if(!res.ok) throw new Error(data.error||'Gagal membuat script');
+        const loader = data.loader;
+        showResult(resultDiv,`
+            <strong>✅ Script berhasil dibuat!</strong><br>
+            <strong>Loader:</strong>
+            <pre>${loader}</pre>
+            <button class="copy-btn" onclick="copyToClipboard('${loader.replace(/'/g,"\\'")}')">📋 Copy Loader</button>
+        `,'success');
+    } catch(err){ showResult(resultDiv,`❌ Error: ${err.message}`,'error'); }
 }
 
-.container{
-max-width:1050px;
-margin:auto;
-padding:35px 25px;
+async function loadScript() {
+    const id = document.getElementById('edit-id').value.trim();
+    const key = document.getElementById('edit-key').value.trim();
+    const form = document.getElementById('edit-form');
+    const resultDiv = document.getElementById('edit-result');
+    if(!id||!key){ showResult(resultDiv,'ID dan Key harus diisi','error'); form.style.display='none'; return; }
+
+    try {
+        const res = await fetch(`${BASE_URL}/${id}?key=${encodeURIComponent(key)}`);
+        if(!res.ok){ const text = await res.text(); throw new Error(text||'Script tidak ditemukan atau key salah'); }
+        const script = await res.text();
+        document.getElementById('edit-script').value = script;
+        form.style.display='block';
+        resultDiv.style.display='none';
+    } catch(err){ showResult(resultDiv,`❌ Error: ${err.message}`,'error'); form.style.display='none'; }
 }
 
-.header{
-display:flex;
-justify-content:space-between;
-align-items:center;
-margin-bottom:30px;
+async function saveScript() {
+    const id = document.getElementById('edit-id').value.trim();
+    const key = document.getElementById('edit-key').value.trim();
+    const script = document.getElementById('edit-script').value.trim();
+    const resultDiv = document.getElementById('edit-result');
+    if(!script){ showResult(resultDiv,'Script tidak boleh kosong','error'); return; }
+
+    try {
+        const res = await fetch(`${BASE_URL}/${id}`,{
+            method:'POST', headers:{'Content-Type':'application/json'},
+            body:JSON.stringify({key,script})
+        });
+        const data = await res.json();
+        if(!res.ok) throw new Error(data.error||'Gagal menyimpan');
+        showResult(resultDiv,'✅ Script berhasil diperbarui!','success');
+        getMainLoader();
+    } catch(err){ showResult(resultDiv,`❌ Error: ${err.message}`,'error'); }
 }
 
-.title{
-font-size:26px;
-font-weight:600;
-letter-spacing:.5px;
+function getMainLoader() {
+    const id = document.getElementById('edit-id').value.trim();
+    const resultDiv = document.getElementById('edit-result');
+    if(!id){ showResult(resultDiv,'ID script harus diisi','error'); return; }
+    const loader = `loadstring(game:HttpGet("${BASE_URL}/loader/${id}"))()`;
+    showResult(resultDiv,`
+        <strong>✅ Loader untuk script <b>${id}</b>:</strong>
+        <pre>${loader}</pre>
+        <button class="copy-btn" onclick="copyToClipboard('${loader.replace(/'/g,"\\'")}')">📋 Copy Loader</button>
+        <p class="info">Loader ini akan mengambil dua baris loadstring dari server setiap kali dijalankan.</p>
+    `,'success');
 }
 
-.stats{
-display:grid;
-grid-template-columns:repeat(auto-fit,minmax(180px,1fr));
-gap:18px;
-margin-bottom:30px;
+function showResult(div, html, type) {
+    div.innerHTML = html; div.className=`result ${type}`; div.style.display='block';
 }
 
-.card{
-background:rgba(255,255,255,0.06);
-backdrop-filter:blur(10px);
-padding:20px;
-border-radius:14px;
-box-shadow:0 10px 25px rgba(0,0,0,0.35);
+function copyToClipboard(text) {
+    navigator.clipboard.writeText(text).then(()=>alert('Loader berhasil disalin!'))
+    .catch(()=>alert('Gagal menyalin, silakan copy manual.'));
 }
-
-.card h3{
-margin:0;
-font-size:13px;
-opacity:.7;
-}
-
-.card p{
-font-size:24px;
-margin:6px 0 0;
-font-weight:600;
-}
-
-.tabs{
-display:flex;
-gap:10px;
-margin-bottom:25px;
-}
-
-.tab{
-padding:10px 18px;
-background:rgba(255,255,255,0.07);
-border-radius:8px;
-cursor:pointer;
-font-size:14px;
-}
-
-.tab.active{
-background:#5b7cff;
-}
-
-.panel{
-display:none;
-}
-
-.panel.active{
-display:block;
-}
-
-label{
-font-size:14px;
-opacity:.8;
-}
-
-input,textarea{
-width:100%;
-padding:12px;
-margin-top:6px;
-margin-bottom:15px;
-border:none;
-border-radius:8px;
-background:#0f1115;
-color:white;
-font-size:14px;
-}
-
-textarea{
-min-height:150px;
-font-family:monospace;
-}
-
-button{
-padding:11px 18px;
-border:none;
-border-radius:8px;
-cursor:pointer;
-background:#5b7cff;
-color:white;
-font-size:14px;
-}
-
-button:hover{
-opacity:.9;
-}
-
-button.secondary{
-background:#3c3f46;
-}
-
-.scriptList{
-margin-top:15px;
-display:flex;
+</script>
+</body>
+</html>display:flex;
 flex-direction:column;
 gap:12px;
 }
